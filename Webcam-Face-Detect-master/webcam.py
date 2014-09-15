@@ -46,8 +46,6 @@ while True:
 		print ("x: ",x,", y: ",y,", w: ",w," , h: ",h)
 		ser.write(packIntegerAsULong(x))
 		cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-		#time.sleep(500)
-		#print(serial.read())
 
     # Display the resulting frame
     cv2.imshow('Video', frame)
