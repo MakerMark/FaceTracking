@@ -1,74 +1,80 @@
-// Sweep
-// by BARRAGAN <http://barraganstudio.com> 
-// This example code is in the public domain.
-
-
 #include <Servo.h> 
- 
-Servo myservo;  // create servo object to control a servo 
-                // a maximum of eight servo objects can be created 
-int pos = 140;    // variable to store the servo position 
-int led = 21;
 
-void setup() 
-{ 
-  Serial.begin(115200);
-  delay(100);
-  myservo.attach(9);  // attaches the servo on pin 9 to the servo object 
-  pinMode(led, OUTPUT);  
-  myservo.write(pos);
-} 
- 
- 
-void loop() 
-{ 
-  while (Serial.available()){
-    pos = (int)Serial.read();
-    Serial.println(pos);
-    if (pos == 0){}
-    if (pos > 1 and pos <= 25) {
-      myservo.write(135);
-      digitalWrite(led, HIGH); 
+int data[3], v[2];
+int i=0, j=0, n=0, prov=320, num, plus=320, plus1=240, aum=45, aum1=45;
+char c;
+Servo servo1;
+Servo servo2;
+
+void setup()
+{
+  servo1.attach(2); 
+  servo2.attach(3);  
+  Serial.begin(9600);
+}
+
+void loop()
+{  
+  //Read Serial bus data received from Python and write them into servo position
+  if(Serial.available())
+  {
+    prov=Serial.read()-48;
+    if(prov!=72)
+    {
+      data[i]=prov;
+      i++;
     }
-    if (pos >= 26 and pos <= 50) {
-      myservo.write(125);
-      digitalWrite(led, LOW);
-    }
-    if (pos >= 51 and pos <= 75) {
-      myservo.write(115);
-      digitalWrite(led, HIGH);       
-    }
-    if (pos >= 76 and pos <= 100) {
-      myservo.write(100);
-      digitalWrite(led, LOW);      
-    }
-    if (pos >= 101 and pos <= 125) {
-      myservo.write(90);
-      digitalWrite(led, HIGH);         
-    }
-    if (pos >= 126 and pos <= 150) {
-      myservo.write(90);
-      digitalWrite(led, LOW);      
-    }
-    if (pos >= 151 and pos <= 175) {
-      myservo.write(80);
-      digitalWrite(led, HIGH);       
-    }
-    if (pos >= 176 and pos <= 200) {
-      myservo.write(70);
-      digitalWrite(led, LOW);      
-    }
-    if (pos >= 201 and pos <= 225) {
-      myservo.write(60);
-      digitalWrite(led, HIGH);         
-    }
-    if (pos >= 226 and pos <= 255) {
-      myservo.write(55);
-      digitalWrite(led, LOW);       
-    }
-    if (pos >= 256 and pos <= 280) {
-      myservo.write(50);
-      digitalWrite(led, HIGH);        
+    else
+    {
+      if(i==0)
+        num=0;
+      if(i==1)
+        num=data[0];
+      if(i==2)
+        num=data[1]+data[0]*10;
+      if(i==3)
+        num=data[2]+data[1]*10+data[0]*100;
+      i=0;
+      v[n]=num;
+      n++;
+      if(n==2)
+      {
+        //Start X axis
+        while(plus>0)
+        {
+          if((v[0]<=plus) && (v[0]>(plus-10)))
+          {
+            servo1.write(aum-5);
+            delay(15);
+            plus=0;
+          }
+          else
+          {
+            plus=plus-10;
+            aum=aum+3;
+          }
+        }
+        plus=320;
+        aum=45;
+        //Start Y axis
+        while(plus1>0)
+        {
+          if((v[1]<=plus1) && (v[1]>(plus1-10)))
+          {
+            servo2.write(aum1);
+            delay(15);
+            plus1=0;
+          }
+          else
+          {
+            plus1=plus1-10;
+            aum1=aum1+3;
+          }
+        }
+        plus1=240;
+        aum1=45;
+        n=0;
+      }
     }
   }
-} 
+}
