@@ -1,32 +1,28 @@
 import cv2
 import sys
 import serial
-import time
-import struct
 
-def packIntegerAsULong(value):
-    """Packs a python 4 byte unsigned integer to an arduino unsigned long"""
-    return struct.pack('I', value)    #should check bounds
-    
+# Create an object Serial with ttymxc3 port
 ser = serial.Serial(
     port='/dev/ttymxc3',
     baudrate=115200,
-    parity=serial.PARITY_ODD,
-    stopbits=serial.STOPBITS_ONE,
-    bytesize=serial.EIGHTBITS
+    parity=serial.PARITY_ODD, # Optional
+    stopbits=serial.STOPBITS_ONE, # Optional
+    bytesize=serial.EIGHTBITS # Optional
 )
+# Check if Serial is Open, close it then re-open (to avoid exception)
 if ser.isOpen():
     ser.close()
 ser.open()
-ser.isOpen()
 
 cascPath = sys.argv[1]
 faceCascade = cv2.CascadeClassifier(cascPath)
 
+# Set video source (UDOO Camera) and resolution
 video_capture = cv2.VideoCapture(7)
-
-video_capture.set(3,380)
+video_capture.set(3,320)
 video_capture.set(4,240)
+
 while True:
     # Capture frame-by-frame
     ret, frame = video_capture.read()
@@ -35,7 +31,7 @@ while True:
 
     faces = faceCascade.detectMultiScale(
         gray,
-        scaleFactor=1.1,
+        scaleFactor=1.2,
         minNeighbors=5,
         minSize=(30, 30),
         flags=cv2.cv.CV_HAAR_SCALE_IMAGE
@@ -43,8 +39,13 @@ while True:
 
     # Draw a rectangle around the faces
     for (x, y, w, h) in faces:
-		print ("x: ",x,", y: ",y,", w: ",w," , h: ",h)
-		ser.write(packIntegerAsULong(x))
+		print ("x: ",x,", y: ",y)
+		prov=str(x)
+		prov = prov + 'x'
+		ser.write(prov)
+		prov=str(y)
+		prov = prov + 'x'
+		ser.write(prov)
 		cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
     # Display the resulting frame
@@ -56,5 +57,3 @@ while True:
 # When everything is done, release the capture
 video_capture.release()
 cv2.destroyAllWindows()
-
-
