@@ -10,7 +10,7 @@ void setup()
 {
   servo1.attach(2); 
   servo2.attach(3);  
-  Serial.begin(9600);
+  Serial.begin(115200);
 }
 
 void loop()
